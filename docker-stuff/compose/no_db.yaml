@@ -1,0 +1,17 @@
+# php7.4_apache_debian11_composer
+# только веб-приложение, без БД
+
+version: "3.8"
+services:
+  web:
+    build:
+      context: ./docker-stuff
+      dockerfile: ./dockerfiles/no_db.Dockerfile
+    image: webstac_app
+    ports:
+      - "8967:80"
+    volumes:   # %откуда снаружи%:%куда внутри%
+      - .:/var/www/webstac
+    # прокидываем локалхост в хостовую систему
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

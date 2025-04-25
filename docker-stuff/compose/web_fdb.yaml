@@ -1,0 +1,35 @@
+# php7.4_apache_debian11_composer_grunt
+# веб-приложение + firebird 2.5 (в отдельных контейнерах)
+
+services:
+  web:  # веб-приложение (php)
+    build:
+      context: ./docker-stuff
+      dockerfile: ./dockerfiles/no_db.Dockerfile
+      args:
+        INSTALL_GRUNT: "0"    # 1|0 - опциональная установка grunt для сборки стилей и js скриптов
+    post_start:
+      - command: /var/www/webstac/docker-stuff/default-configs/no_db/_assemble_front.sh
+    image: webstac_app
+    restart: unless-stopped
+    ports:
+      - "8967:80"
+    volumes:   # %откуда снаружи%:%куда внутри%
+      - .:/var/www/webstac
+    # прокидываем локалхост в хостовую систему
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  fdb:  # firebird
+    build:
+      context: .
+      dockerfile: docker-stuff/dockerfiles/firebird25.Dockerfile
+    image: webstac_firebird
+    restart: unless-stopped
+    ports:
+      - "38452:3050"
+    volumes: # %откуда снаружи%:%куда внутри%
+      - ./fdb_volume:/firebird
+#    # прокидываем локалхост в хостовую систему
+#    extra_hosts:
+#      - "host.docker.internal:host-gateway"
